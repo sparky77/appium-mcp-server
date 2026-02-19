@@ -1,4 +1,4 @@
-@smoke @wikipedia @language-settings
+@wikipedia @language-settings
 Feature: Language Settings
   As a Wikipedia user
   I want to manage language settings
