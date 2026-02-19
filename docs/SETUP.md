@@ -28,7 +28,7 @@ This is a **CUSTOM MCP SERVER** you built yourself. It's not a plugin - it's a s
   - Reopen Claude Desktop
 
 - [ ] **Step 5**: Verify connection
-  - Look for "appium-mcp" in MCP servers list
+  - Look for "appiumMCP" in MCP servers list
   - Should show 7 tools available
 
 ## How It Works
@@ -41,8 +41,8 @@ YOU ARE HERE                    YOUR MCP SERVER              BROWSERSTACK CLOUD
 └─────────────┘                └─────────────┘              └─────────────┘
      │                               │                             │
      │                               │                             │
-     └── Reads config ───┐           └── Tools:                    └── Test App
-         at startup       │               - inspect_screen              (APK)
+     └── Reads config ───┐           └── Tools:                    └── Wikipedia
+         at startup       │               - inspect_screen              Alpha APK
                           │               - smart_action
                           │               - handle_firebase_auth
                           │               - gesture
@@ -73,7 +73,7 @@ Expected output: `Appium MCP server with coverage analysis running`
 
 ### Test 2: Claude Sees It
 After restart, Claude Desktop should show:
-- MCP Server: ✅ appium-mcp
+- MCP Server: ✅ appiumMCP
 - Tools: 7 available
 
 ### Test 3: Use a Tool
@@ -113,7 +113,7 @@ In Claude, ask:
 ## Next Steps
 
 Once connected, you can:
-1. Test mobile applications on real Android devices
+1. Test the Wikipedia APK on real Android devices via BrowserStack
 2. Get AI-powered element analysis
 3. Track test coverage automatically
 4. Generate Cucumber tests from your exploration
