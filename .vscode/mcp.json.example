@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "appiumMCP": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/src/server.js"],
+      "env": {
+        "BROWSERSTACK_USERNAME": "your_username_here",
+        "BROWSERSTACK_ACCESS_KEY": "your_access_key_here",
+        "BS_APP_REFERENCE": "bs://your_app_hash_here"
+      }
+    }
+  }
+}

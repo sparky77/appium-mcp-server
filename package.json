@@ -1,0 +1,36 @@
+{
+  "name": "appium-mcp-server",
+  "version": "0.3.0",
+  "description": "AI-powered mobile testing framework using Model Context Protocol",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test:cucumber": "wdio wdio.conf.js",
+    "test:azure": "wdio wdio.conf.js && echo 'Test results in ./reports/ ready for Azure'",
+    "test:report:generate": "allure generate allure-results --clean -o allure-report",
+    "browserstack:results": "node scripts/fetch-test-results.js",
+    "browserstack:dashboard": "node scripts/generate-dashboard.js",
+    "browserstack:report": "node scripts/fetch-test-results.js --format html --output reports/browserstack-report.html",
+    "test:report:open": "allure open allure-report",
+    "test:report": "npm run test:report:generate && npm run test:report:open",
+    "generate:features": "echo 'Use MCP generate_cucumber tool to create feature files'",
+    "lint": "eslint src/**/*.js --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.0",
+    "@wdio/allure-reporter": "^9.18.0",
+    "@wdio/cli": "^9.18.4",
+    "@wdio/cucumber-framework": "^9.18.0",
+    "@wdio/junit-reporter": "^9.18.0",
+    "@wdio/spec-reporter": "^9.18.0",
+    "webdriverio": "^9.18.4"
+  },
+  "devDependencies": {
+    "@wdio/local-runner": "^9.23.3",
+    "allure-commandline": "^2.25.0",
+    "eslint": "^8.56.0"
+  }
+}

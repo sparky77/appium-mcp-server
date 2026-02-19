@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "appiumMCP": {
+      "command": "node",
+      "args": ["d:\\Apps\\appium-mcp-server\\src\\server.js"],
+      "env": {
+        "BROWSERSTACK_USERNAME": "YOUR_BROWSERSTACK_USERNAME",
+        "BROWSERSTACK_ACCESS_KEY": "YOUR_BROWSERSTACK_ACCESS_KEY",
+        "BS_APP_REFERENCE": "bs://YOUR_APP_HASH"
+      }
+    }
+  }
+}

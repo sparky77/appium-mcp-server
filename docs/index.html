@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appium MCP Server - Documentation Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+        
+        .version-badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .intro {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .intro h2 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            color: #1e3c72;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .doc-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .doc-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        
+        .doc-card h3 {
+            color: #2a5298;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+        
+        .doc-card p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .doc-card .tag {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            margin-right: 8px;
+            margin-top: 10px;
+        }
+        
+        .tag.getting-started { background: #e8f5e9; color: #2e7d32; }
+        .tag.technical { background: #fff3e0; color: #e65100; }
+        .tag.reference { background: #f3e5f5; color: #7b1fa2; }
+        .tag.sprint { background: #e0f2f1; color: #00695c; }
+        
+        .quick-links {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-top: 40px;
+        }
+        
+        .quick-links h3 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .quick-links ul {
+            list-style: none;
+        }
+        
+        .quick-links li {
+            margin-bottom: 10px;
+        }
+        
+        .quick-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: opacity 0.3s;
+        }
+        
+        .quick-links a:hover {
+            opacity: 0.8;
+        }
+        
+        footer {
+            background: #1e3c72;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📱 Appium MCP Server</h1>
+            <p>AI-Powered Mobile Testing Framework</p>
+            <span class="version-badge">v0.3.0</span>
+        </header>
+        
+        <div class="content">
+            <div class="intro">
+                <h2>🚀 Welcome to the Documentation Portal</h2>
+                <p>
+                    Appium MCP Server revolutionizes mobile testing by enabling conversational AI to test mobile applications.
+                    Instead of writing traditional Appium test code, you describe what you want to test in natural language,
+                    and the AI intelligently executes, documents, and tracks your tests.
+                </p>
+                <p style="margin-top: 15px;">
+                    <strong>Key Innovation:</strong> Natural language → Automated testing → Auto-generated documentation → Real-time coverage tracking
+                </p>
+            </div>
+            
+            <div class="section">
+                <h2>📚 Getting Started</h2>
+                <div class="doc-grid">
+                    <a href="README.md" class="doc-card">
+                        <div class="icon">📖</div>
+                        <h3>README</h3>
+                        <p>Complete project overview, features, installation guide, and quick start examples.</p>
+                        <span class="tag getting-started">Essential</span>
+                        <span class="tag getting-started">Start Here</span>
+                    </a>
+                    
+                    <a href="SETUP.md" class="doc-card">
+                        <div class="icon">⚙️</div>
+                        <h3>Setup Guide</h3>
+                        <p>Detailed installation instructions, BrowserStack configuration, and troubleshooting.</p>
+                        <span class="tag getting-started">Installation</span>
+                    </a>
+                    
+                    <a href="QUICK-REF.md" class="doc-card">
+                        <div class="icon">⚡</div>
+                        <h3>Quick Reference</h3>
+                        <p>Common commands, test execution, status checks, and quick troubleshooting.</p>
+                        <span class="tag reference">Commands</span>
+                    </a>
+                    
+                    <a href="SESSION-CONTEXT.md" class="doc-card">
+                        <div class="icon">🤖</div>
+                        <h3>Session Context</h3>
+                        <p>AI assistant configuration - feed this to Copilot/Claude for full project context.</p>
+                        <span class="tag reference">AI Config</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🔬 Technical Documentation</h2>
+                <div class="doc-grid">
+                    <a href="docs/DEV-JOURNAL.md" class="doc-card">
+                        <div class="icon">📝</div>
+                        <h3>Development Journal</h3>
+                        <p>Technical deep dives, architectural decisions, and implementation details.</p>
+                        <span class="tag technical">Deep Dive</span>
+                    </a>
+                    
+                    <a href="docs/CONTEXT-SWITCHING-PATTERNS.md" class="doc-card">
+                        <div class="icon">🔄</div>
+                        <h3>Context Switching</h3>
+                        <p>Technical guide for native/webview context switching in Appium.</p>
+                        <span class="tag technical">Advanced</span>
+                    </a>
+                    
+                    <a href="docs/FOLDER-STRUCTURE.md" class="doc-card">
+                        <div class="icon">📂</div>
+                        <h3>Folder Structure</h3>
+                        <p>Project architecture and file organization reference.</p>
+                        <span class="tag reference">Structure</span>
+                    </a>
+                    
+                    <a href="docs/TEST-COVERAGE-SUMMARY.md" class="doc-card">
+                        <div class="icon">📊</div>
+                        <h3>Coverage Summary</h3>
+                        <p>Test coverage metrics, gaps analysis, and testing progress.</p>
+                        <span class="tag reference">Metrics</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🎯 Sprint Documentation</h2>
+                <div class="doc-grid">
+                    <a href="docs/SPRINT-1-COMPLETE.md" class="doc-card">
+                        <div class="icon">✅</div>
+                        <h3>Sprint 1 Complete</h3>
+                        <p>POC completion, MCP server creation, and initial testing infrastructure.</p>
+                        <span class="tag sprint">v0.1.0</span>
+                    </a>
+                    
+                    <a href="docs/SPRINT-2-READY.md" class="doc-card">
+                        <div class="icon">🔐</div>
+                        <h3>Sprint 2 Complete</h3>
+                        <p>Authentication infrastructure, Firebase flows, and page object models.</p>
+                        <span class="tag sprint">v0.2.0</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🗺️ MCP Navigation & Discovery</h2>
+                <div class="doc-grid">
+                    <a href="mcp-nav/WikiDiscovery.md" class="doc-card">
+                        <div class="icon">🔍</div>
+                        <h3>Wikipedia Discovery</h3>
+                        <p>Complete MCP exploration walkthrough with 3 screens documented.</p>
+                        <span class="tag reference">Walkthrough</span>
+                    </a>
+                    
+                    <a href="mcp-nav/test-registry.md" class="doc-card">
+                        <div class="icon">📋</div>
+                        <h3>Test Registry</h3>
+                        <p>Test scenario tracking and coverage matrix.</p>
+                        <span class="tag reference">Registry</span>
+                    </a>
+                    
+                    <a href="mcp-nav/app-map.md" class="doc-card">
+                        <div class="icon">🗺️</div>
+                        <h3>App Map</h3>
+                        <p>Element mappings and screen navigation flows.</p>
+                        <span class="tag reference">Map</span>
+                    </a>
+                    
+                    <a href="mcp-nav/handover-prompt.md" class="doc-card">
+                        <div class="icon">🔄</div>
+                        <h3>Handover Prompt</h3>
+                        <p>Complete context restoration for new AI sessions.</p>
+                        <span class="tag reference">AI Restore</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="quick-links">
+                <h3>⚡ Quick Actions</h3>
+                <ul>
+                    <li>🚀 <a href="#">Run Tests: <code>npm run test:cucumber</code></a></li>
+                    <li>📊 <a href="#">View Allure Report: <code>npm run test:report</code></a></li>
+                    <li>🔍 <a href="https://automate.browserstack.com/dashboard" target="_blank">BrowserStack Dashboard →</a></li>
+                    <li>📦 <a href="package.json">View package.json →</a></li>
+                    <li>⚙️ <a href="wdio.conf.js">View WDIO Config →</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <footer>
+            <p><strong>Appium MCP Server v0.3.0</strong></p>
+            <p>Built with Model Context Protocol • WebdriverIO • BrowserStack</p>
+            <p style="margin-top: 15px; opacity: 0.8;">
+                Demonstrating the future of AI-powered test automation
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

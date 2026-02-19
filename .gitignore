@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment
+.env
+.env.local
+
+# Test Results
+reports/
+allure-results/
+allure-report/
+screenshots/
+
+# IDE
+.vscode/*
+!.vscode/mcp.json.example
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# Build
+dist/
+build/
+*.tgz
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Generated analysis files
+screen-analysis.json
