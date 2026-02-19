@@ -130,7 +130,16 @@ class AppiumMCPServer {
 
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args } = request.params;
-      
+
+      // BrowserStack API tools — no device session needed
+      try {
+        if (name === "get_test_results") return await this.handleGetTestResults(args.buildFilter);
+        if (name === "get_session_logs") return await this.handleGetSessionLogs(args.sessionId);
+      } catch (error) {
+        return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+      }
+
+      // Device tools — require live Appium session on BrowserStack
       try {
         const driver = await this.session.getDriver();
 
@@ -149,10 +158,6 @@ class AppiumMCPServer {
             return await this.handleAnalyzeGaps(args.scope);
           case "generate_cucumber":
             return await this.handleGenerateCucumber(args.pageName, args.includeGaps);
-          case "get_test_results":
-            return await this.handleGetTestResults(args.buildFilter);
-          case "get_session_logs":
-            return await this.handleGetSessionLogs(args.sessionId);
           default:
             throw new Error(`Unknown tool: ${name}`);
         }

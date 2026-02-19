@@ -15,7 +15,7 @@ exports.config = {
       userName: process.env.BROWSERSTACK_USERNAME,
       accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
       projectName: 'MCP Generated Tests',
-      buildName: 'MCP POC run'
+      buildName: 'MCP POC run 1'
       // sessionName set dynamically in Before hook
     }
   }],

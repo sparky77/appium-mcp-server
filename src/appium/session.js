@@ -24,11 +24,18 @@ class AppiumSession {
             userName: process.env.BROWSERSTACK_USERNAME,
             accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
             projectName: 'MCP Testing',
-            buildName: 'Build 1.0',
-            sessionName: 'MCP Session'
+            buildName: 'MCP POC run',
+            sessionName: 'MCP Live Session'
           }
         }
       });
+      
+      // Switch to NATIVE_APP context for Android UI automation
+      await this.driver.pause(2000); // Wait for app to load
+      const contexts = await this.driver.getContexts();
+      if (contexts.includes('NATIVE_APP')) {
+        await this.driver.switchContext('NATIVE_APP');
+      }
     }
     return this.driver;
   }
