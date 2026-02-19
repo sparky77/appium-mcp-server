@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 exports.config = {
   runner: 'local',
   
