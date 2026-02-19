@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+require('dotenv').config();
+const https = require('https');
 const { Server } = require("@modelcontextprotocol/sdk/server/index.js");
 const { StdioServerTransport } = require("@modelcontextprotocol/sdk/server/stdio.js");
 const { CallToolRequestSchema, ListToolsRequestSchema } = require("@modelcontextprotocol/sdk/types.js");
@@ -101,6 +103,27 @@ class AppiumMCPServer {
               includeGaps: { type: "boolean", default: true, description: "Include gap-based scenarios" }
             }
           }
+        },
+        {
+          name: "get_test_results",
+          description: "Fetch recent BrowserStack test results - builds, sessions, pass/fail status and public URLs",
+          inputSchema: {
+            type: "object",
+            properties: {
+              buildFilter: { type: "string", description: "Optional filter string to match build names (e.g. 'MCP POC run')" }
+            }
+          }
+        },
+        {
+          name: "get_session_logs",
+          description: "Fetch Appium logs for a specific BrowserStack session - shows exact errors, selectors attempted, and stack traces",
+          inputSchema: {
+            type: "object",
+            properties: {
+              sessionId: { type: "string", description: "BrowserStack session ID (hashed_id from get_test_results)" }
+            },
+            required: ["sessionId"]
+          }
         }
       ]
     }));
@@ -126,6 +149,10 @@ class AppiumMCPServer {
             return await this.handleAnalyzeGaps(args.scope);
           case "generate_cucumber":
             return await this.handleGenerateCucumber(args.pageName, args.includeGaps);
+          case "get_test_results":
+            return await this.handleGetTestResults(args.buildFilter);
+          case "get_session_logs":
+            return await this.handleGetSessionLogs(args.sessionId);
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
@@ -265,6 +292,111 @@ class AppiumMCPServer {
     throw new Error("Could not find Firebase auth elements");
   }
 
+  // ─── BrowserStack API Engine ───────────────────────────────────────────────
+
+  bsApiRequest(path, expectJson = true) {
+    return new Promise((resolve, reject) => {
+      const auth = Buffer.from(
+        `${process.env.BROWSERSTACK_USERNAME}:${process.env.BROWSERSTACK_ACCESS_KEY}`
+      ).toString('base64');
+
+      const options = {
+        hostname: 'api-cloud.browserstack.com',
+        path,
+        method: 'GET',
+        headers: { 'Authorization': `Basic ${auth}`, 'Accept': 'application/json' }
+      };
+
+      const req = https.request(options, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          if (expectJson) {
+            try { resolve(JSON.parse(data)); } catch (e) { resolve(data); }
+          } else {
+            resolve(data);
+          }
+        });
+      });
+      req.on('error', reject);
+      req.end();
+    });
+  }
+
+  async handleGetTestResults(buildFilter) {
+    const builds = await this.bsApiRequest('/app-automate/builds.json');
+
+    if (!Array.isArray(builds) || builds.length === 0) {
+      return { content: [{ type: "text", text: "No builds found. Run some tests first." }] };
+    }
+
+    const filtered = builds
+      .filter(b => {
+        if (!buildFilter) return true;
+        const name = b.automation_build?.name || '';
+        return name.toLowerCase().includes(buildFilter.toLowerCase());
+      })
+      .slice(0, 5);
+
+    const summary = await Promise.all(filtered.map(async (b) => {
+      const build = b.automation_build;
+      const sessions = await this.bsApiRequest(`/app-automate/builds/${build.hashed_id}/sessions.json`);
+      const sessionList = Array.isArray(sessions) ? sessions : [];
+
+      return {
+        buildId: build.hashed_id,
+        buildName: build.name,
+        status: build.status,
+        duration: build.duration,
+        sessions: sessionList.map(s => ({
+          sessionId: s.automation_session.hashed_id,
+          name: s.automation_session.name,
+          status: s.automation_session.status,
+          duration: s.automation_session.duration,
+          reason: s.automation_session.reason || null,
+          device: s.automation_session.device,
+          publicUrl: s.automation_session.public_url
+        }))
+      };
+    }));
+
+    const failed = summary.flatMap(b => b.sessions.filter(s => s.status === 'failed'));
+
+    return {
+      content: [{
+        type: "text",
+        text: JSON.stringify({
+          totalBuilds: summary.length,
+          builds: summary,
+          failedSessions: failed,
+          tip: failed.length > 0
+            ? `Use get_session_logs with sessionId to see the Appium error for any failed session`
+            : 'All sessions passed'
+        }, null, 2)
+      }]
+    };
+  }
+
+  async handleGetSessionLogs(sessionId) {
+    const logs = await this.bsApiRequest(
+      `/app-automate/sessions/${sessionId}/logs`,
+      false  // plain text, not JSON
+    );
+
+    const truncated = typeof logs === 'string' && logs.length > 6000
+      ? logs.slice(0, 6000) + '\n... (truncated - showing first 6000 chars)'
+      : logs;
+
+    return {
+      content: [{
+        type: "text",
+        text: `Appium logs for session ${sessionId}:\n\n${truncated}`
+      }]
+    };
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+
   parseActionToGesture(action) {
     const lower = action.toLowerCase();
     if (lower.includes('tap') || lower.includes('click')) return 'tap';
@@ -278,6 +410,64 @@ class AppiumMCPServer {
     await this.server.connect(transport);
     console.error("Appium MCP server with coverage analysis running");
   }
+}
+
+// ─── CLI help mode ──────────────────────────────────────────────────────────
+if (process.argv.includes('--help') || process.argv.includes('-h') || process.argv.includes('--list')) {
+  console.log(`
+╔══════════════════════════════════════════════════════════════╗
+║          Appium MCP Server - Available Tools                 ║
+╚══════════════════════════════════════════════════════════════╝
+
+DEVICE CONTROL (live Appium session on BrowserStack)
+─────────────────────────────────────────────────────
+  inspect_screen
+    Analyse current mobile screen, list all elements + selectors.
+    Usage: no arguments needed
+
+  smart_action  <action>
+    Natural language command e.g. "tap search button"
+    Args: action (string)
+
+  gesture  <type> <target>
+    Execute tap / swipe / scroll / long_press / back
+    Args: type (enum), target (string), params (object, optional)
+
+  handle_firebase_auth  <email> <password>
+    Handle webview-based auth flows (context switching)
+    Args: email (string), password (string)
+
+COVERAGE & REPORTING
+─────────────────────────────────────────────────────
+  finalize_page  <pageName>
+    Generate coverage report for the current page
+    Args: pageName (string)
+
+  analyze_gaps  [scope]
+    Find untested elements and missing scenarios
+    Args: scope ("current" | "all", default: "current")
+
+  generate_cucumber  [pageName] [includeGaps]
+    Auto-generate Cucumber feature files from screen exploration
+    Args: pageName (string), includeGaps (boolean, default: true)
+
+BROWSERSTACK API ENGINE (test intelligence - no device needed)
+─────────────────────────────────────────────────────
+  get_test_results  [buildFilter]
+    Fetch recent BrowserStack builds + sessions with pass/fail status.
+    Returns session IDs for use with get_session_logs.
+    Args: buildFilter (string, optional) e.g. "MCP POC run"
+
+  get_session_logs  <sessionId>
+    Fetch full Appium logs for a session - shows exact errors,
+    selectors attempted, ElementNotFound stack traces.
+    Args: sessionId (string) - from get_test_results output
+
+─────────────────────────────────────────────────────
+Total: 9 tools  |  Requires: BROWSERSTACK_USERNAME, BROWSERSTACK_ACCESS_KEY, BS_APP_REFERENCE
+Run without flags to start MCP server (connects via Claude Desktop / VS Code Copilot)
+`);
+  process.exit(0);
 }
 
 const server = new AppiumMCPServer();
