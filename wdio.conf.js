@@ -54,6 +54,11 @@ exports.config = {
       outputFileFormat: function(options) {
         return `results-${options.cid}.xml`;
       }
+    }],
+    ['allure', {
+      outputDir: 'allure-results',
+      disableWebdriverStepsReporting: true,
+      useCucumberStepReporter: true
     }]
   ],
 
