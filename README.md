@@ -82,7 +82,7 @@ appium-mcp-server/
 - Lists all visible elements with selectors
 - Tracks test coverage automatically
 
-### 2. **smart_action**
+### 2. **smart_action**!
 - Natural language commands: `"tap search button"`, `"scroll down"`
 - Finds elements using 7-strategy fallback chain
 - Tracks coverage for each action

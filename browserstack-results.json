@@ -1,0 +1,145 @@
+{
+  "builds": [
+    {
+      "id": "e41ae4f0baee3075a1ca30c514fbd00cb395d516",
+      "name": "MCP POC run",
+      "status": "timeout",
+      "total": 1439,
+      "sessions": [
+        {
+          "id": "5e13314b8ff2db2a1a1b6c12c14c826ad3e67327",
+          "name": "MCP Live Session",
+          "status": "timeout",
+          "device": "Samsung Galaxy S21",
+          "os_version": "12.0",
+          "duration": 471,
+          "reason": "TIMEOUT"
+        },
+        {
+          "id": "000194e5a19b665a7a67f2bc9b81015d4486e547",
+          "name": "MCP Live Session",
+          "status": "timeout",
+          "device": "Samsung Galaxy S21",
+          "os_version": "12.0",
+          "duration": 221,
+          "reason": "TIMEOUT"
+        }
+      ]
+    },
+    {
+      "id": "25de6d064bc185434930d25b2c186ce4fdd60de4",
+      "name": "MCP POC run 1",
+      "status": "running",
+      "total": 5163,
+      "sessions": [
+        {
+          "id": "8f8629cc228f6c6201280455e558e9048f0bc49a",
+          "name": "",
+          "status": "running",
+          "device": "Samsung Galaxy Tab S10 Plus",
+          "os_version": "15.0",
+          "duration": null,
+          "reason": null
+        },
+        {
+          "id": "39b8e44c6af8ad9c8c28ad8662f1e41617d3e5a0",
+          "name": "App [Wikipedia] [Feature : Wikipedia Search - BROKEN FOR DEMO] [Scenario : Search with wrong element ID - BROKEN ELEMENT]",
+          "status": "running",
+          "device": "Samsung Galaxy Tab S10 Plus",
+          "os_version": "15.0",
+          "duration": null,
+          "reason": null
+        },
+        {
+          "id": "12c977b16f636cf0583ae3d5eb18cd2f9f1e3bcb",
+          "name": "App [Wikipedia] [Feature : Wikipedia Search] [Scenario : Close search view]",
+          "status": "passed",
+          "device": "Samsung Galaxy Tab S10 Plus",
+          "os_version": "15.0",
+          "duration": 39,
+          "reason": "Test passed successfully"
+        },
+        {
+          "id": "f59fbdeb15dbc81d7495d19f7b400de4e344f19e",
+          "name": "App [Wikipedia] [Feature : Wikipedia Search] [Scenario : Open search view]",
+          "status": "failed",
+          "device": "Samsung Galaxy Tab S10 Plus",
+          "os_version": "15.0",
+          "duration": 40,
+          "reason": "Open search view FAILED - Element not interactable: Error: element ('//*[contains(@text, 'Wikipedia language')]') still not displaye. FIX: Use smart_action AI handles timing and state."
+        },
+        {
+          "id": "5fa1600405de19a0da0f3cdbc6cd9812c018ac09",
+          "name": "App [Wikipedia] [Feature : Wikipedia Search - BROKEN FOR DEMO] [Scenario : Search for an article - BROKEN SELECTOR]",
+          "status": "failed",
+          "device": "Samsung Galaxy Tab S10 Plus",
+          "os_version": "15.0",
+          "duration": 52,
+          "reason": "Search for an article - BROKEN SELECTOR FAILED - Element not interactable: Error: element ('//*[contains(@text, 'No results found')]') still not displayed. FIX: Use smart_action AI handles timing and state."
+        },
+        {
+          "id": "b3ecffacf2c8021157e55be69ca32d2f9961a54b",
+          "name": "",
+          "status": "done",
+          "device": "Samsung Galaxy Tab S10 Plus",
+          "os_version": "15.0",
+          "duration": 23,
+          "reason": "CLIENT_STOPPED_SESSION"
+        },
+        {
+          "id": "496b11a678caa4ef8a7ff491071ea4dad366f079",
+          "name": "App [Wikipedia] [Feature : Wikipedia Search] [Scenario : Search with no results]",
+          "status": "passed",
+          "device": "Samsung Galaxy Tab S10 Plus",
+          "os_version": "15.0",
+          "duration": 43,
+          "reason": "Test passed successfully"
+        },
+        {
+          "id": "c1ed8cfeeae73f37d78b61d383c2f9044f036792",
+          "name": "",
+          "status": "done",
+          "device": "Samsung Galaxy Tab S10 Plus",
+          "os_version": "15.0",
+          "duration": 25,
+          "reason": "CLIENT_STOPPED_SESSION"
+        },
+        {
+          "id": "32b142a3cc2481d72f16656f7429ac78fa6a52f2",
+          "name": "App [Wikipedia] [Feature : Wikipedia Search] [Scenario : Search for an article]",
+          "status": "passed",
+          "device": "Samsung Galaxy Tab S10 Plus",
+          "os_version": "15.0",
+          "duration": 55,
+          "reason": "Test passed successfully"
+        },
+        {
+          "id": "96e4080b2b707df7a0aea34d6410a683f3b9a7f4",
+          "name": "App [Wikipedia] [Feature : Wikipedia Search - BROKEN FOR DEMO] [Scenario : Close search without opening - BROKEN STATE]",
+          "status": "failed",
+          "device": "Samsung Galaxy Tab S10 Plus",
+          "os_version": "15.0",
+          "duration": 45,
+          "reason": "Close search without opening - BROKEN STATE FAILED - Error: DEMO BUG: Cannot close search - view not open!     at World.<anonymous> (. FIX: Use inspect_screen plus smart_action for AI debugging."
+        }
+      ]
+    },
+    {
+      "id": "928b57db05f9b675fafb90d603fa35d7ca0e35b2",
+      "name": "Build 1.0",
+      "status": "timeout",
+      "total": 139,
+      "sessions": [
+        {
+          "id": "962113c6db515915ab3303114953373599a21b27",
+          "name": "MCP Session",
+          "status": "timeout",
+          "device": "Samsung Galaxy S21",
+          "os_version": "12.0",
+          "duration": 139,
+          "reason": "TIMEOUT"
+        }
+      ]
+    }
+  ]
+}
