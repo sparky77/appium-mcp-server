@@ -4,7 +4,7 @@
 
 A **custom-built Model Context Protocol (MCP) server** that enables AI-powered mobile test automation against the **Wikipedia Android Alpha APK** running on real devices via BrowserStack App Automate.
 
-> **Important**: This is a **SERVER-SIDE** project. The MCP config (`claude_desktop_config.json`) lives on the **CLIENT SIDE** in Claude Desktop's config folder.
+> **Important**: This is a **SERVER-SIDE** project. The MCP config (`claude_desktop_config.json`) lives on the **CLIENT SIDE**, in Claude Desktop's config folder.
 
 ## 🚀 Quick Start
 
