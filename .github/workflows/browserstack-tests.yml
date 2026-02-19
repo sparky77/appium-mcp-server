@@ -12,6 +12,11 @@ on:
         required: false
         default: '@search'
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   run-tests:
     name: Run Tests on BrowserStack
@@ -43,7 +48,7 @@ jobs:
         if: always()
         run: npm run test:report:generate
 
-      - name: Upload Allure report
+      - name: Upload Allure report as artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -51,15 +56,11 @@ jobs:
           path: allure-report/
           retention-days: 30
 
-      - name: Upload raw results
+      - name: Upload Pages artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: test-results-${{ github.run_number }}
-          path: |
-            reports/
-            allure-results/
-          retention-days: 30
+          path: allure-report/
 
       - name: Test summary
         if: always()
@@ -67,4 +68,18 @@ jobs:
           echo "### Test Run Complete" >> $GITHUB_STEP_SUMMARY
           echo "**Tags:** ${{ github.event.inputs.tags || '@search' }}" >> $GITHUB_STEP_SUMMARY
           echo "**Device:** BrowserStack Android" >> $GITHUB_STEP_SUMMARY
-          echo "📥 Download the **allure-report-${{ github.run_number }}** artifact above to view the full report" >> $GITHUB_STEP_SUMMARY
+          echo "📊 [View Allure Report](https://sparky77.github.io/appium-mcp-server/)" >> $GITHUB_STEP_SUMMARY
+
+  deploy-report:
+    name: Deploy Allure Report to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: run-tests
+    if: always()
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
