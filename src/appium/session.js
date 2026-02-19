@@ -25,7 +25,10 @@ class AppiumSession {
             accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
             projectName: 'MCP Testing',
             buildName: 'MCP POC run',
-            sessionName: 'MCP Live Session'
+            sessionName: 'MCP Live Session',
+            debug: true,
+            networkLogs: true,
+            interactiveDebugging: true
           }
         }
       });
