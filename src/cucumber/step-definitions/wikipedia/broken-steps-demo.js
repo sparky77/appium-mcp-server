@@ -31,17 +31,7 @@ if (!mainPage) {
  * BUG #1: Wrong element selector
  */
 When('I enter text into wrong search field', async function() {
-  // BUG: Using wrong element ID that doesn't exist
-  const wrongElement = await browser.$('id=org.wikipedia.alpha:id/wrong_search_input');
-  
-  try {
-    await wrongElement.waitForDisplayed({ timeout: 5000 });
-    await wrongElement.click();
-    await wrongElement.setValue('Test Query');
-  } catch (e) {
-    console.log('⚠️ DEMO BUG: Wrong element selector - element not found');
-    throw new Error('DEMO BUG: Cannot find search input - selector is wrong!');
-  }
+  await searchPage.enterSearchTerm('Test Query');
 });
 
 /**

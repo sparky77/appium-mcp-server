@@ -6,7 +6,7 @@ class GestureEngine {
       case 'tap':
         return await this.tap(driver, element, target);
       case 'scroll':
-        return await this.scroll(driver, params.direction || 'down');
+        return await this.scroll(driver, params.direction || target || 'down');
       case 'long_press':
         return await this.longPress(driver, element, params.duration || 2000);
       case 'back':
@@ -122,24 +122,21 @@ class GestureEngine {
 
   async scroll(driver, direction) {
     const windowSize = await driver.getWindowSize();
-    const centerX = windowSize.width / 2;
-    const centerY = windowSize.height / 2;
-    const distance = 300;
+    const centerX = Math.round(windowSize.width / 2);
+    const centerY = Math.round(windowSize.height / 2);
+    const width = Math.round(windowSize.width * 0.8);
+    const height = Math.round(windowSize.height * 0.6);
+    const left = Math.round((windowSize.width - width) / 2);
+    const top = Math.round((windowSize.height - height) / 2);
 
-    let startY = centerY, endY = centerY;
-    if (direction === 'down') {
-      startY = centerY - distance / 2;
-      endY = centerY + distance / 2;
-    } else if (direction === 'up') {
-      startY = centerY + distance / 2;
-      endY = centerY - distance / 2;
-    }
-
-    await driver.touchAction([
-      { action: 'press', x: centerX, y: startY },
-      { action: 'moveTo', x: centerX, y: endY },
-      { action: 'release' }
-    ]);
+    await driver.execute('mobile: scrollGesture', {
+      left,
+      top,
+      width,
+      height,
+      direction,
+      percent: 0.7
+    });
 
     return { content: [{ type: "text", text: `Scrolled ${direction}` }] };
   }
@@ -148,14 +145,14 @@ class GestureEngine {
     if (element) {
       const location = await element.getLocation();
       const size = await element.getSize();
-      const x = location.x + size.width / 2;
-      const y = location.y + size.height / 2;
+      const x = Math.round(location.x + size.width / 2);
+      const y = Math.round(location.y + size.height / 2);
 
-      await driver.touchAction([
-        { action: 'press', x, y },
-        { action: 'wait', ms: duration },
-        { action: 'release' }
-      ]);
+      await driver.execute('mobile: longClickGesture', {
+        x,
+        y,
+        duration
+      });
 
       return { content: [{ type: "text", text: `Long pressed for ${duration}ms` }] };
     }

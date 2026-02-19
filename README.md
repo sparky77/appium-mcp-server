@@ -90,6 +90,7 @@ appium-mcp-server/
 ### 3. **gesture**
 - Execute specific gestures: `tap`, `swipe`, `scroll`, `long_press`
 - Target elements by description or XPath
+- Scroll uses native mobile scroll gesture by default
 
 ### 4. **finalize_page**
 - Complete page coverage analysis

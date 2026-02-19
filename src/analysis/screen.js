@@ -1,8 +1,14 @@
 class ScreenAnalyzer {
   async analyze(driver) {
     // Detect context first
-    const contexts = await driver.getContexts();
-    const currentContext = await driver.getContext();
+    let contexts = [];
+    let currentContext = 'NATIVE_APP';
+    try {
+      contexts = await driver.getContexts();
+      currentContext = await driver.getContext();
+    } catch (e) {
+      // If contexts aren't available yet, assume native
+    }
     const isWebView = currentContext.includes('WEBVIEW');
     
     let elements = [];
