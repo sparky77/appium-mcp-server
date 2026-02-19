@@ -1,145 +1,71 @@
-name: BrowserStack Mobile Tests
+name: BrowserStack Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:  # Allow manual trigger
+    branches: [main]
+  workflow_dispatch:
     inputs:
       tags:
-        description: 'Cucumber tags to run (e.g., @smoke, @critical)'
+        description: 'Cucumber tag expression (e.g. @search, @broken-demo)'
         required: false
-        default: '@smoke'
+        default: '@search'
 
 jobs:
-  smoke-tests:
-    name: Smoke Tests
+  run-tests:
+    name: Run Tests on BrowserStack
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22.x'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
-      - name: Run smoke tests on BrowserStack
+
+      - name: Run tests
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
           BS_APP_REFERENCE: ${{ secrets.BS_APP_REFERENCE }}
-        run: npx wdio wdio.conf.js --cucumberOpts.tagExpression='@smoke'
-      
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-smoke
-          path: |
-            reports/
-            allure-results/
-          retention-days: 30
-      
-      - name: Generate Allure Report
+        run: |
+          TAGS="${{ github.event.inputs.tags || '@search' }}"
+          echo "Running tests with tag: $TAGS"
+          npx wdio wdio.conf.js --cucumberOpts.tagExpression="$TAGS"
+
+      - name: Generate Allure report
         if: always()
         run: npm run test:report:generate
-      
-      - name: Upload Allure Report
+
+      - name: Upload Allure report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report-smoke
+          name: allure-report-${{ github.run_number }}
           path: allure-report/
           retention-days: 30
 
-  critical-tests:
-    name: Critical Path Tests
-    runs-on: ubuntu-latest
-    needs: smoke-tests  # Run after smoke tests pass
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Run critical tests on BrowserStack
-        env:
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          BS_APP_REFERENCE: ${{ secrets.BS_APP_REFERENCE }}
-        run: npx wdio wdio.conf.js --cucumberOpts.tagExpression='@critical and not @broken'
-      
-      - name: Upload test results
+      - name: Upload raw results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-critical
+          name: test-results-${{ github.run_number }}
           path: |
             reports/
             allure-results/
-          retention-days: 30
-      
-      - name: Generate dashboard
-        if: always()
-        env:
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-        run: npm run browserstack:dashboard
-      
-      - name: Upload dashboard
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: browserstack-dashboard
-          path: reports/dashboard.html
           retention-days: 30
 
-  manual-tag-tests:
-    name: Manual Tag Execution
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Run tests with custom tags
-        env:
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          BS_APP_REFERENCE: ${{ secrets.BS_APP_REFERENCE }}
-        run: npx wdio wdio.conf.js --cucumberOpts.tagExpression='${{ github.event.inputs.tags }}'
-      
-      - name: Upload test results
+      - name: Test summary
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-manual
-          path: |
-            reports/
-            allure-results/
-          retention-days: 30
+        run: |
+          echo "### Test Run Complete" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:** ${{ github.event.inputs.tags || '@search' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Device:** BrowserStack Android" >> $GITHUB_STEP_SUMMARY
+          echo "📥 Download the **allure-report-${{ github.run_number }}** artifact above to view the full report" >> $GITHUB_STEP_SUMMARY
