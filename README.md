@@ -77,6 +77,8 @@ appium-mcp-server/
 
 ## 🛠️ MCP Tools Available
 
+### Device Control Tools (Require Active Appium Session)
+
 ### 1. **inspect_screen**
 - Analyzes current mobile screen
 - Lists all visible elements with selectors
@@ -91,21 +93,50 @@ appium-mcp-server/
 - Execute specific gestures: `tap`, `swipe`, `scroll`, `long_press`
 - Target elements by description or XPath
 
-### 4. **finalize_page**
+### 4. **handle_firebase_auth**
+- Handles webview-based authentication flows
+- Context switching between NATIVE and WEBVIEW
+
+### Coverage Analysis Tools
+
+### 5. **finalize_page**
 - Complete page coverage analysis
 - Elements tested vs total, coverage percentage, gap analysis
 
-### 5. **analyze_gaps**
+### 6. **analyze_gaps**
 - Identify untested elements and missing scenarios
 - Prioritized recommendations (high/medium/low)
 
-### 6. **generate_cucumber**
+### 7. **generate_cucumber**
 - Auto-generate Cucumber feature files from screen exploration
 - Ready to run with WebdriverIO
 
-### 7. **handle_firebase_auth**
-- Handles webview-based authentication flows
-- Context switching between NATIVE and WEBVIEW
+### BrowserStack API Tools (No Active Session Needed)
+
+### 8. **get_test_results**
+- Fetch recent BrowserStack builds with pass/fail summary
+- Filter by project name, limit results
+- See all sessions with status and public URLs
+
+### 9. **get_build_sessions**
+- Get all sessions for a specific build
+- Detailed status information for each session
+- Identify failed tests quickly
+
+### 10. **get_session_details**
+- Get detailed information about a specific test session
+- Device info, OS version, Appium version
+- Failure reasons and debug URLs
+
+### 11. **get_session_logs**
+- Fetch full Appium logs for debugging
+- Shows exact errors, selectors attempted, stack traces
+- Essential for diagnosing test failures
+
+### 12. **get_browserstack_plan**
+- Check BrowserStack account limits
+- See parallel session usage
+- Monitor queue status
 
 ---
 

@@ -29,7 +29,7 @@ This is a **CUSTOM MCP SERVER** you built yourself. It's not a plugin - it's a s
 
 - [ ] **Step 5**: Verify connection
   - Look for "appiumMCP" in MCP servers list
-  - Should show 7 tools available
+  - Should show 12 tools available
 
 ## How It Works
 
@@ -74,7 +74,7 @@ Expected output: `Appium MCP server with coverage analysis running`
 ### Test 2: Claude Sees It
 After restart, Claude Desktop should show:
 - MCP Server: ✅ appiumMCP
-- Tools: 7 available
+- Tools: 12 available
 
 ### Test 3: Use a Tool
 In Claude, ask:
@@ -100,15 +100,25 @@ In Claude, ask:
 - ✅ Check app is uploaded to BrowserStack
 - ✅ Update BS_APP_REFERENCE if needed
 
-## Your Server Exposes 7 Tools
+## Your Server Exposes 12 Tools
 
+### Device Control (Requires Active Session)
 1. **inspect_screen** - Analyze current screen
 2. **handle_firebase_auth** - Auto Firebase login
 3. **smart_action** - Natural language commands
 4. **gesture** - Tap, swipe, scroll, long-press
+
+### Coverage Analysis
 5. **finalize_page** - Generate coverage report
 6. **analyze_gaps** - Find untested areas
 7. **generate_cucumber** - Auto-create test files
+
+### BrowserStack API (No Session Needed)
+8. **get_test_results** - Fetch recent builds and sessions
+9. **get_build_sessions** - Get all sessions for a build
+10. **get_session_details** - Detailed session information
+11. **get_session_logs** - Debug logs for failed tests
+12. **get_browserstack_plan** - Account usage and limits
 
 ## Next Steps
 
