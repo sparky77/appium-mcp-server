@@ -10,6 +10,10 @@ const { GestureEngine } = require('./gestures/engine.js');
 const { ScreenAnalyzer } = require('./analysis/screen.js');
 const { CoverageAnalyzer } = require('./coverage/analyzer.js');
 const { FeatureGenerator } = require('./cucumber/generator.js');
+const { BrowserStackAPI } = require('../scripts/browserstack-api.js');
+
+// Constants
+const MAX_LOG_CHARS = 8000; // Maximum characters to return from logs (from end for recent errors)
 
 class AppiumMCPServer {
   constructor() {
@@ -23,9 +27,21 @@ class AppiumMCPServer {
     this.analyzer = new ScreenAnalyzer();
     this.coverage = new CoverageAnalyzer();
     this.generator = new FeatureGenerator();
+    this.bsApi = null; // Lazy initialize BrowserStack API
 
     this.currentPage = null;
     this.setupTools();
+  }
+
+  getBrowserStackAPI() {
+    if (!this.bsApi) {
+      try {
+        this.bsApi = new BrowserStackAPI();
+      } catch (error) {
+        throw new Error(`BrowserStack API not configured: ${error.message}`);
+      }
+    }
+    return this.bsApi;
   }
 
   setupTools() {
@@ -110,8 +126,31 @@ class AppiumMCPServer {
           inputSchema: {
             type: "object",
             properties: {
-              buildFilter: { type: "string", description: "Optional filter string to match build names (e.g. 'MCP POC run')" }
+              buildFilter: { type: "string", description: "Optional filter string to match build names (e.g. 'MCP POC run')" },
+              limit: { type: "number", description: "Number of builds to fetch (default: 5, max: 20)", default: 5 }
             }
+          }
+        },
+        {
+          name: "get_build_sessions",
+          description: "Get all sessions for a specific BrowserStack build with detailed status information",
+          inputSchema: {
+            type: "object",
+            properties: {
+              buildId: { type: "string", description: "BrowserStack build ID (hashed_id from get_test_results)" }
+            },
+            required: ["buildId"]
+          }
+        },
+        {
+          name: "get_session_details",
+          description: "Get detailed information about a specific test session including device, status, URLs, and failure reasons",
+          inputSchema: {
+            type: "object",
+            properties: {
+              sessionId: { type: "string", description: "BrowserStack session ID (hashed_id from get_test_results)" }
+            },
+            required: ["sessionId"]
           }
         },
         {
@@ -124,6 +163,14 @@ class AppiumMCPServer {
             },
             required: ["sessionId"]
           }
+        },
+        {
+          name: "get_browserstack_plan",
+          description: "Get BrowserStack account plan details including parallel session limits and usage",
+          inputSchema: {
+            type: "object",
+            properties: {}
+          }
         }
       ]
     }));
@@ -133,8 +180,11 @@ class AppiumMCPServer {
 
       // BrowserStack API tools — no device session needed
       try {
-        if (name === "get_test_results") return await this.handleGetTestResults(args.buildFilter);
+        if (name === "get_test_results") return await this.handleGetTestResults(args.buildFilter, args.limit);
+        if (name === "get_build_sessions") return await this.handleGetBuildSessions(args.buildId);
+        if (name === "get_session_details") return await this.handleGetSessionDetails(args.sessionId);
         if (name === "get_session_logs") return await this.handleGetSessionLogs(args.sessionId);
+        if (name === "get_browserstack_plan") return await this.handleGetBrowserStackPlan();
       } catch (error) {
         return { content: [{ type: "text", text: `Error: ${error.message}` }] };
       }
@@ -297,39 +347,11 @@ class AppiumMCPServer {
     throw new Error("Could not find Firebase auth elements");
   }
 
-  // ─── BrowserStack API Engine ───────────────────────────────────────────────
+  // ─── BrowserStack API Handlers ───────────────────────────────────────────────
 
-  bsApiRequest(path, expectJson = true) {
-    return new Promise((resolve, reject) => {
-      const auth = Buffer.from(
-        `${process.env.BROWSERSTACK_USERNAME}:${process.env.BROWSERSTACK_ACCESS_KEY}`
-      ).toString('base64');
-
-      const options = {
-        hostname: 'api-cloud.browserstack.com',
-        path,
-        method: 'GET',
-        headers: { 'Authorization': `Basic ${auth}`, 'Accept': 'application/json' }
-      };
-
-      const req = https.request(options, (res) => {
-        let data = '';
-        res.on('data', chunk => data += chunk);
-        res.on('end', () => {
-          if (expectJson) {
-            try { resolve(JSON.parse(data)); } catch (e) { resolve(data); }
-          } else {
-            resolve(data);
-          }
-        });
-      });
-      req.on('error', reject);
-      req.end();
-    });
-  }
-
-  async handleGetTestResults(buildFilter) {
-    const builds = await this.bsApiRequest('/app-automate/builds.json');
+  async handleGetTestResults(buildFilter, limit = 5) {
+    const api = this.getBrowserStackAPI();
+    const builds = await api.getBuilds(Math.min(limit, 20));
 
     if (!Array.isArray(builds) || builds.length === 0) {
       return { content: [{ type: "text", text: "No builds found. Run some tests first." }] };
@@ -341,11 +363,11 @@ class AppiumMCPServer {
         const name = b.automation_build?.name || '';
         return name.toLowerCase().includes(buildFilter.toLowerCase());
       })
-      .slice(0, 5);
+      .slice(0, limit);
 
     const summary = await Promise.all(filtered.map(async (b) => {
       const build = b.automation_build;
-      const sessions = await this.bsApiRequest(`/app-automate/builds/${build.hashed_id}/sessions.json`);
+      const sessions = await api.getSessions(build.hashed_id);
       const sessionList = Array.isArray(sessions) ? sessions : [];
 
       return {
@@ -382,20 +404,106 @@ class AppiumMCPServer {
     };
   }
 
-  async handleGetSessionLogs(sessionId) {
-    const logs = await this.bsApiRequest(
-      `/app-automate/sessions/${sessionId}/logs`,
-      false  // plain text, not JSON
-    );
+  async handleGetBuildSessions(buildId) {
+    const api = this.getBrowserStackAPI();
+    const sessions = await api.getSessions(buildId);
+    
+    if (!Array.isArray(sessions) || sessions.length === 0) {
+      return { content: [{ type: "text", text: `No sessions found for build ${buildId}` }] };
+    }
 
-    const truncated = typeof logs === 'string' && logs.length > 6000
-      ? logs.slice(0, 6000) + '\n... (truncated - showing first 6000 chars)'
-      : logs;
+    const sessionDetails = sessions.map(s => ({
+      sessionId: s.automation_session.hashed_id,
+      name: s.automation_session.name || 'Unnamed Session',
+      status: s.automation_session.status,
+      duration: s.automation_session.duration || 0,
+      device: s.automation_session.device,
+      os: s.automation_session.os,
+      osVersion: s.automation_session.os_version,
+      reason: s.automation_session.reason || null,
+      publicUrl: s.automation_session.public_url,
+      videoUrl: s.automation_session.video_url || null
+    }));
+
+    const failed = sessionDetails.filter(s => s.status === 'failed');
+
+    return {
+      content: [{
+        type: "text",
+        text: JSON.stringify({
+          buildId: buildId,
+          totalSessions: sessionDetails.length,
+          passedSessions: sessionDetails.filter(s => s.status === 'passed').length,
+          failedSessions: failed.length,
+          sessions: sessionDetails,
+          tip: failed.length > 0
+            ? `${failed.length} session(s) failed. Use get_session_logs to see error details.`
+            : 'All sessions passed!'
+        }, null, 2)
+      }]
+    };
+  }
+
+  async handleGetSessionDetails(sessionId) {
+    const api = this.getBrowserStackAPI();
+    const session = await api.getSession(sessionId);
+    
+    return {
+      content: [{
+        type: "text",
+        text: JSON.stringify({
+          sessionId: session.automation_session.hashed_id,
+          name: session.automation_session.name,
+          status: session.automation_session.status,
+          duration: session.automation_session.duration,
+          device: session.automation_session.device,
+          os: session.automation_session.os,
+          osVersion: session.automation_session.os_version,
+          appiumVersion: session.automation_session.appium_version,
+          reason: session.automation_session.reason || 'No failure reason',
+          publicUrl: session.automation_session.public_url,
+          videoUrl: session.automation_session.video_url,
+          logs: session.automation_session.logs,
+          tip: session.automation_session.status === 'failed'
+            ? 'Use get_session_logs to see the full Appium logs and identify the exact error'
+            : 'Session passed successfully'
+        }, null, 2)
+      }]
+    };
+  }
+
+  async handleGetSessionLogs(sessionId) {
+    const api = this.getBrowserStackAPI();
+    const logs = await api.getSessionLogs(sessionId);
+
+    const logText = typeof logs === 'string' ? logs : JSON.stringify(logs, null, 2);
+    const truncated = logText.length > MAX_LOG_CHARS
+      ? `... (log truncated, showing last ${MAX_LOG_CHARS} chars)\n\n` + logText.slice(-MAX_LOG_CHARS)
+      : logText;
 
     return {
       content: [{
         type: "text",
         text: `Appium logs for session ${sessionId}:\n\n${truncated}`
+      }]
+    };
+  }
+
+  async handleGetBrowserStackPlan() {
+    const api = this.getBrowserStackAPI();
+    const plan = await api.getPlan();
+    
+    return {
+      content: [{
+        type: "text",
+        text: JSON.stringify({
+          parallelSessions: plan.parallel_sessions_max_allowed,
+          parallelSessionsRunning: plan.parallel_sessions_running,
+          maxDuration: plan.max_duration,
+          queued: plan.queued_sessions,
+          queuedMax: plan.queued_sessions_max_allowed,
+          teamParallelSessions: plan.team_parallel_sessions_max_allowed
+        }, null, 2)
       }]
     };
   }
@@ -458,18 +566,30 @@ COVERAGE & REPORTING
 
 BROWSERSTACK API ENGINE (test intelligence - no device needed)
 ─────────────────────────────────────────────────────
-  get_test_results  [buildFilter]
+  get_test_results  [buildFilter] [limit]
     Fetch recent BrowserStack builds + sessions with pass/fail status.
-    Returns session IDs for use with get_session_logs.
-    Args: buildFilter (string, optional) e.g. "MCP POC run"
+    Returns session IDs for use with other tools.
+    Args: buildFilter (string, optional), limit (number, default: 5)
+
+  get_build_sessions  <buildId>
+    Get all sessions for a specific build with detailed status info.
+    Args: buildId (string) - from get_test_results output
+
+  get_session_details  <sessionId>
+    Get detailed session info including device, URLs, and failure reasons.
+    Args: sessionId (string) - from get_test_results or get_build_sessions
 
   get_session_logs  <sessionId>
     Fetch full Appium logs for a session - shows exact errors,
     selectors attempted, ElementNotFound stack traces.
     Args: sessionId (string) - from get_test_results output
 
+  get_browserstack_plan
+    Get BrowserStack plan details (parallel sessions, usage, etc.)
+    Args: none
+
 ─────────────────────────────────────────────────────
-Total: 9 tools  |  Requires: BROWSERSTACK_USERNAME, BROWSERSTACK_ACCESS_KEY, BS_APP_REFERENCE
+Total: 12 tools  |  Requires: BROWSERSTACK_USERNAME, BROWSERSTACK_ACCESS_KEY, BS_APP_REFERENCE
 Run without flags to start MCP server (connects via Claude Desktop / VS Code Copilot)
 `);
   process.exit(0);
