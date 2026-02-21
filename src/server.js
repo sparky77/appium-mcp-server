@@ -12,6 +12,9 @@ const { CoverageAnalyzer } = require('./coverage/analyzer.js');
 const { FeatureGenerator } = require('./cucumber/generator.js');
 const { BrowserStackAPI } = require('../scripts/browserstack-api.js');
 
+// Constants
+const MAX_LOG_CHARS = 8000; // Maximum characters to return from logs (from end for recent errors)
+
 class AppiumMCPServer {
   constructor() {
     this.server = new Server(
@@ -474,8 +477,8 @@ class AppiumMCPServer {
     const logs = await api.getSessionLogs(sessionId);
 
     const logText = typeof logs === 'string' ? logs : JSON.stringify(logs, null, 2);
-    const truncated = logText.length > 8000
-      ? '... (log truncated, showing last 8000 chars)\n\n' + logText.slice(-8000)
+    const truncated = logText.length > MAX_LOG_CHARS
+      ? `... (log truncated, showing last ${MAX_LOG_CHARS} chars)\n\n` + logText.slice(-MAX_LOG_CHARS)
       : logText;
 
     return {
